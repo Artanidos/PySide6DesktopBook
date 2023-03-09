@@ -1,0 +1,18 @@
+<RCC>
+    <qresource>
+        <file>images/edit.svg</file>
+        <file>images/settings_hover.png</file>
+        <file>images/settings_normal.png</file>
+        <file>images/settings_selected.png</file>
+        <file>images/dashboard_hover.png</file>
+        <file>images/dashboard_normal.png</file>
+        <file>images/dashboard_selected.png</file>
+        <file>images/clients_hover.png</file>
+        <file>images/clients_normal.png</file>
+        <file>images/clients_selected.png</file>
+        <file>images/image_placeholder.png</file>
+        <file>images/plus.svg</file>
+        <file>images/trash.svg</file>
+        <file>images/menu.svg</file>
+    </qresource>
+</RCC>
