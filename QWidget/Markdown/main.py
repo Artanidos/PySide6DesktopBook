@@ -1,17 +1,21 @@
 import sys
 import os
+from threading import Thread, Lock
 from PySide6.QtWidgets import (QApplication, QMainWindow, QSplitter, QTextEdit, 
                              QMessageBox, QFileDialog, QDialog)
-from PySide6.QtCore import Qt, QCoreApplication, QSettings, QUrl, QPoint, QSize
+from PySide6.QtCore import Qt, QCoreApplication, QSettings, QPoint, QSize, Signal, QUrl
 from PySide6.QtGui import QIcon, QKeySequence, QAction
 from PySide6.QtWebEngineWidgets import QWebEngineView
-import markdown2
+from markdown2 import markdown
 
 
 class MainWindow(QMainWindow):
+    htmlReady = Signal(str)
+
     def __init__(self):
         QMainWindow.__init__(self)
         self.cur_file = ""
+        self.tread_running = False
         self.splitter = QSplitter()
         self.text_edit = QTextEdit("")
         self.preview = QWebEngineView()
@@ -178,11 +182,28 @@ class MainWindow(QMainWindow):
         self.restoreState(settings.value("state"))
 
     def textChanged(self):
+        text = self.text_edit.toPlainText()
+        self.lock = Lock()
+        with self.lock:
+            if not self.tread_running:
+                self.tread_running = True
+                self.htmlReady.connect(self.previewReady)
+                thread = Thread(target=self.createHtml, args=(text,))
+                thread.daemon = True
+                thread.start()
+
+    def createHtml(self, text):
         path = os.getcwd()
-        html = "<html><head><link href=\"assets/pastie.css\" rel=\"stylesheet\" type=\"text/css\"/></head><body>"
-        html += markdown2.markdown(self.text_edit.toPlainText(), ..., extras=["fenced-code-blocks"])
+        html = "<html><head></head><body>"
+        html += markdown(self.text_edit.toPlainText())
         html += "</body></html>"
-        self.preview.setHtml(html, baseUrl = QUrl("file://" + path + "/"))
+        self.htmlReady.emit(html)
+
+    def previewReady(self, html):
+        self.preview.setHtml(html)
+        self.htmlReady.disconnect()
+        with self.lock:
+            self.tread_running = False
 
 
 if __name__ == "__main__":
@@ -191,4 +212,4 @@ if __name__ == "__main__":
     QCoreApplication.setApplicationName("MarkdownEditor")
     win = MainWindow()
     win.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
