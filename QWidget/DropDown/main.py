@@ -2,7 +2,6 @@ import sys
 import pycountry
 from PySide6.QtWidgets import (QApplication, QMainWindow, QLabel, QWidget, QGridLayout, 
                              QLineEdit, QRadioButton, QComboBox)
-from PySide6.QtCore import Qt
 
 
 class MainWindow(QMainWindow):
